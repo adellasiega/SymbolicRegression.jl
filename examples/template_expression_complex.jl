@@ -29,6 +29,9 @@ the components of a particle's motion under magnetic and drag forces. We'll see 
 
 Let's get started!
 =#
+using Pkg
+Pkg.instantiate()
+Pkg.add("MLJBase")
 using SymbolicRegression
 using SymbolicRegression: ValidVector
 using Random
