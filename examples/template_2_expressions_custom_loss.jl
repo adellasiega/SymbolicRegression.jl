@@ -19,7 +19,7 @@ input = (;
 struct SDE{T}
     drift::T
     diff::T
-send
+end
 
 output = [SDE(b...) for b in data.B]
 
@@ -51,13 +51,11 @@ end
 model = SRRegressor(;
     binary_operators=(+, -, *, /),
     unary_operators=(sin, cos, sqrt, exp),
-    niterations=5,
-    maxsize=35,
+    niterations=20,
+    maxsize=5,
     expression_spec=TemplateExpressionSpec(; structure),
     ## Note that the elementwise loss needs to operate directly on each row of `y`:
     loss_function_expression = my_loss,
-    batching=true,
-    batch_size=30,
 );
 
 #=
