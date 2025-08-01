@@ -1,31 +1,26 @@
 using Pkg
 Pkg.instantiate()
-Pkg.add("MLJBase")
 using SymbolicRegression
-using SymbolicRegression: ValidVector
+using SymbolicRegression: ValidVector, Dataset, compute_complexity, string_tree
 using Random
-using MLJBase: machine, fit!, predict, report
 
 n = 1000
 rng = Random.MersenneTwister(0);
-y = 10 .* rand(rng, n)
 
-B = [(sin(yi), exp(-yi / 10)) for yi in y]
-data = (; y, B)
-input = (;
-    y=data.y,
-)
+X = (rand(rng, n) .- 0.5) .* 2.0 
+Y = [(2.0* x -20.0, exp(-x / 10.0) + 10.0) for x in X]
 
 struct SDE{T}
     drift::T
     diff::T
 end
 
-output = [SDE(b...) for b in data.B]
+output = [SDE(y...) for y in Y]
+dataset = Dataset(X', output)
 
-function compute((; drift, diff), (y,))
-    _f = drift(y)
-    _g = diff(y)
+function compute((; drift, diff), (x,))
+    _f = drift(x)
+    _g = diff(x)
     results = [SDE(f, g) for (f, g) in zip(_f.x, _g.x)]
 
     return ValidVector(results, _f.valid && _g.valid)
@@ -33,25 +28,27 @@ end
 
 structure = TemplateStructure{(:drift, :diff,)}(compute)
 
-model = SRRegressor(;
-    binary_operators=(+, -, *, /),
-    unary_operators=(sin, cos, sqrt, exp),
-    niterations=5,
-    maxsize=35,
+options = Options(
+    binary_operators=[+, *, /, -],
+    unary_operators=[sin, exp],
+    maxsize=20,
     expression_spec=TemplateExpressionSpec(; structure),
-    ## Note that the elementwise loss needs to operate directly on each row of `y`:
     elementwise_loss=(F1, F2) -> (F1.drift - F2.drift)^2 + (F1.diff - F2.diff)^2,
-    batching=true,
-    batch_size=30,
-);
+)
 
-#=
-Note how we also have to define the custom `elementwise_loss`
-function. This is because our `combine_vectors` function
-returns a `SDE` struct, so we need to combine it against the truth!
-Next, we can set up our machine and fit:
-=#
+hall_of_fame = equation_search(
+    dataset,  
+    niterations=40,
+    options=options,
+    parallelism=:multithreading
+)
 
-mach = machine(model, input, output)
-fit!(mach)
-report(mach)
+dominating = calculate_pareto_frontier(hall_of_fame)
+
+println("Complexity\tLoss\tEquation")
+for member in dominating
+    complexity = compute_complexity(member, options)
+    loss = member.loss
+    string = string_tree(member.tree, options)
+    println("$(complexity)\t$(loss)\t$(string)")
+end
