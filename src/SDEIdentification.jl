@@ -7,6 +7,7 @@ using ..TemplateExpressionModule:
 
 using ..TemplateExpressionModule: ValidVector
 
+using Plots
 
 function custom_loss(tree, dataset, options)
     drift_diff_fn = x -> begin
