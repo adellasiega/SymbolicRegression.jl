@@ -68,6 +68,20 @@ function compute_ecdf_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
         x = X[t, :]
         y = Y[t, :]
 
+        if any(isnan.(x))
+            println("Detected NaN in x at positions: ", findall(isnan, x))
+            return 1e10
+        elseif any(isnan.(y))
+            #println("Detected NaN in y at positions: ", findall(isnan, y))
+            return 1e10
+        elseif any(isinf.(x))
+            println("Detected Inf in x at positions: ", findall(isinf, x))
+            return 1e10
+        elseif any(isinf.(y))
+            println("Detected Inf in y at positions: ", findall(isinf, y))
+            return 1e10
+        end
+
         ecdf1 = ecdf(x)
         ecdf2 = ecdf(y)
         grid = range(minimum(vcat(x, y)), maximum(vcat(x, y)); length=100)
@@ -85,6 +99,20 @@ function compute_histogram_distance(X::Matrix{Float64}, Y::Matrix{Float64}; nbin
     for t in 1:T
         x = X[t, :]
         y = Y[t, :]
+
+        if any(isnan.(x))
+            println("Detected NaN in x at positions: ", findall(isnan, x))
+            return 1e10
+        elseif any(isnan.(y))
+            #println("Detected NaN in y at positions: ", findall(isnan, y))
+            return 1e10
+        elseif any(isinf.(x))
+            println("Detected Inf in x at positions: ", findall(isinf, x))
+            return 1e10
+        elseif any(isinf.(y))
+            println("Detected Inf in y at positions: ", findall(isinf, y))
+            return 1e10
+        end
 
         # Shared bin edges
         lo = min(minimum(x), minimum(y))
