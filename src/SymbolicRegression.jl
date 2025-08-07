@@ -60,6 +60,16 @@ export Population,
     get_metadata,
     with_contents,
     with_metadata,
+    #SDEIdentification
+    custom_loss,
+    plot_comparison,
+    plot_trajectories,
+    simulate,
+    flatten_matrix,
+    unflatten_matrix,
+    compute_ecdf_distance,
+    compute_histogram_distance,
+    wrap_text,
 
     #Operators
     plus,
