@@ -37,7 +37,7 @@ function custom_loss(tree, dataset, options)
     original = unflatten_matrix(dataset.X, N)
     x0 = original[1, :]
     simulated = simulate(drift_diff_fn, x0)
-    return compute_histogram_distance(original, simulated)
+    return compute_kolmogorov_distance(original, simulated)
 end
 
 function simulate(drift_diff_fn::Function, y0::Vector{Float64}, dt=0.1, t_end=10.0)::Matrix{Float64}
