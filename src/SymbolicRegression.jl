@@ -70,6 +70,9 @@ export Population,
     compute_ecdf_distance,
     compute_histogram_distance,
     wrap_text,
+    SDE,
+    compute,
+    structure,
 
     #Operators
     plus,
@@ -358,7 +361,7 @@ using .ComposableExpressionModule: ComposableExpression
 using .ExpressionBuilderModule: embed_metadata, strip_metadata
 using .ParametricExpressionModule: ParametricExpressionSpec
 using .TemplateExpressionMacroModule: @template_spec
-using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text
+using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text, SDE, compute, structure
 
 @stable default_mode = "disable" begin
     include("deprecates.jl")
