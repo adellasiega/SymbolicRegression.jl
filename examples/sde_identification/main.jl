@@ -27,7 +27,7 @@ drift_exprs = [
     "0.2 .* y",
     "-0.2 .* y .+ 1.0",
     "0.2 .* exp.(-y.+1.5)",
-    "0.9 .* sin.(y)",
+    "0.9 .* y",
 ]
 
 diff_functions = [
@@ -51,14 +51,12 @@ T = 100
 dt = 0.1
 x0 = randn(N)
 
-
 drift_1 = y -> -0.5 .* y
-diff_1 = y -> 0.1
+diff_1 = y -> 0.1 
 drift_diff_fn_1 = y -> (drift_1(y), diff_1(y))
 
-drift_2 = y -> 0.414 .* y
-diff_2 = y -> -0.985 .* y 
-
+drift_2 = y -> -0.0818 .* y
+diff_2 = y ->  y 
 drift_diff_fn_2 = y -> (drift_2(y), diff_2(y))
 
 X1 = simulate(drift_diff_fn_1, x0, dt, T*dt)
@@ -66,8 +64,9 @@ X2 = simulate(drift_diff_fn_2, x0, dt, T*dt)
 
 plot_trajectories("X1", X1)
 plot_trajectories("X2", X2)
-println(compute_distance(X1, X2))
-#=
+println("Histogram distance: ", compute_histogram_distance(X1, X2))
+println("ECDF distance: ", compute_ecdf_distance(X1, X2))
+
 for (i, (drift, diff)) in enumerate(zip(drift_functions, diff_functions))
     
     drift_diff_fn = y -> (drift(y), diff(y))
@@ -80,18 +79,18 @@ for (i, (drift, diff)) in enumerate(zip(drift_functions, diff_functions))
 
     options = SymbolicRegression.Options(
         binary_operators = [+, *, /, -],
-        unary_operators  = [exp, sin],
+        unary_operators  = [],
         loss_function_expression = custom_loss,  
         expression_spec = TemplateExpressionSpec(; structure),
         maxsize = 10,
         #nested_constraints = [sin => [sin => 0], exp => [sin => 0]],
-        complexity_of_operators = [sin => 3, exp => 3],
+        #complexity_of_operators = [sin => 3, exp => 3],
     )
 
     hall_of_fame = equation_search(
         flat_X, 
         y_dummy,
-        niterations=20,
+        niterations=100,
         options=options,
     )
     
@@ -99,4 +98,3 @@ for (i, (drift, diff)) in enumerate(zip(drift_functions, diff_functions))
     println(best)
     break
 end
-=#
