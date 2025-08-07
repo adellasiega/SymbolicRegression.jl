@@ -7,6 +7,7 @@ using ..TemplateExpressionModule:
 
 using Plots
 using StatsBase
+using DynamicExpressions: eval_tree_array
 
 function custom_loss(tree, dataset, options)
     drift_diff_fn = x -> begin
