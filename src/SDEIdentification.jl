@@ -1,9 +1,27 @@
 module SDEIdentification
 
-export custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text, SDE, compute, structure
+export 
+    custom_loss, 
+    plot_comparison, 
+    plot_trajectories, 
+    simulate, 
+    flatten_matrix,
+    unflatten_matrix, 
+    compute_kolmogorov_distance,
+    compute_wasserstein1d_distance,
+    compute_histogram_distance,
+    wrap_text,
+    SDE,
+    compute,
+    structure
 
 using ..TemplateExpressionModule:
-    TemplateExpression, TemplateStructure, TemplateExpressionSpec, ParamVector, has_params, ValidVector
+    TemplateExpression, 
+    TemplateStructure, 
+    TemplateExpressionSpec, 
+    ParamVector, 
+    has_params, 
+    ValidVector
 
 using Plots
 using StatsBase
@@ -61,7 +79,7 @@ function unflatten_matrix(flat_M::AbstractMatrix{Float64}, N::Int)::Matrix{Float
     return reshape(flat_M, T, N)
 end
 
-function compute_ecdf_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
+function compute_wasserstein1d_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
     T = size(X, 1)
     tot = 0.0
     for t in 1:T
@@ -90,6 +108,36 @@ function compute_ecdf_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
     end
     return tot / T
 end
+
+function compute_kolmogorov_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
+    T = size(X, 1)
+    tot = 0.0
+    for t in 1:T
+        x = X[t, :]
+        y = Y[t, :]
+
+        if any(isnan.(x))
+            println("Detected NaN in x at positions: ", findall(isnan, x))
+            return 1e10
+        elseif any(isnan.(y))
+            #println("Detected NaN in y at positions: ", findall(isnan, y))
+            return 1e10
+        elseif any(isinf.(x))
+            println("Detected Inf in x at positions: ", findall(isinf, x))
+            return 1e10
+        elseif any(isinf.(y))
+            println("Detected Inf in y at positions: ", findall(isinf, y))
+            return 1e10
+        end
+
+        ecdf1 = ecdf(x)
+        ecdf2 = ecdf(y)
+        grid = range(minimum(vcat(x, y)), maximum(vcat(x, y)); length=100)
+        tot += max(abs.(ecdf1(grid) .- ecdf2(grid)))
+    end
+    return tot / T
+end
+
 
 function compute_histogram_distance(X::Matrix{Float64}, Y::Matrix{Float64}; nbins::Int=10)::Float64
     T = size(X, 1)

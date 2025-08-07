@@ -67,7 +67,8 @@ export Population,
     simulate,
     flatten_matrix,
     unflatten_matrix,
-    compute_ecdf_distance,
+    compute_wasserstein1d_distance,
+    compute_kolmogorov_distance,
     compute_histogram_distance,
     wrap_text,
     SDE,
@@ -361,7 +362,7 @@ using .ComposableExpressionModule: ComposableExpression
 using .ExpressionBuilderModule: embed_metadata, strip_metadata
 using .ParametricExpressionModule: ParametricExpressionSpec
 using .TemplateExpressionMacroModule: @template_spec
-using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text, SDE, compute, structure
+using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_wasserstein1d_distance, compute_kolmogorov_distance, compute_histogram_distance, wrap_text, SDE, compute, structure
 
 @stable default_mode = "disable" begin
     include("deprecates.jl")
