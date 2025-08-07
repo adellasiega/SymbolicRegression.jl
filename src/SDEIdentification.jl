@@ -133,7 +133,7 @@ function compute_kolmogorov_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Fl
         ecdf1 = ecdf(x)
         ecdf2 = ecdf(y)
         grid = range(minimum(vcat(x, y)), maximum(vcat(x, y)); length=100)
-        tot += max(abs.(ecdf1(grid) .- ecdf2(grid)))
+        tot += maximum(abs.(ecdf1(grid) .- ecdf2(grid)))
     end
     return tot / T
 end
