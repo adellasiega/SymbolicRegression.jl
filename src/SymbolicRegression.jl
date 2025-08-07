@@ -89,7 +89,7 @@ export Population,
     gamma,
     erf,
     erfc,
-    atanh_clip,
+    atanh_clip
 
 
 using Distributed
@@ -232,7 +232,7 @@ using DispatchDoctor: @stable
     include("TemplateExpression.jl")
     include("TemplateExpressionMacro.jl")
     include("ParametricExpression.jl")
-#    include("SDEIdentification.jl")
+    include("SDEIdentification.jl")
 end
 
 using .CoreModule:
@@ -348,7 +348,7 @@ using .ComposableExpressionModule: ComposableExpression
 using .ExpressionBuilderModule: embed_metadata, strip_metadata
 using .ParametricExpressionModule: ParametricExpressionSpec
 using .TemplateExpressionMacroModule: @template_spec
-#using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text
+using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text
 
 @stable default_mode = "disable" begin
     include("deprecates.jl")

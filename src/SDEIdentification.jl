@@ -2,7 +2,11 @@ module SDEIdentification
 
 export custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_ecdf_distance, compute_histogram_distance, wrap_text
 
-using ..SymbolicRegressionModule
+using ..TemplateExpressionModule:
+    TemplateExpression, TemplateStructure, TemplateExpressionSpec, ParamVector, has_params
+
+using ..TemplateExpressionModule: ValidVector
+
 
 function custom_loss(tree, dataset, options)
     drift_diff_fn = x -> begin
