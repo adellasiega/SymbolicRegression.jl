@@ -27,58 +27,6 @@ using Plots
 using StatsBase
 using DynamicExpressions: eval_tree_array
 
-function custom_loss(tree, dataset, options)
-    drift_diff_fn = x -> begin
-        pred, flag = eval_tree_array(tree, reshape(x, 1, :), options.operators)
-        return (pred[1].drift, pred[1].diff)
-    end
-    T = 100
-    N = size(dataset.X, 2) ÷ T
-    original = unflatten_matrix(dataset.X, N)
-    x0 = original[1, :]
-    simulated = simulate(drift_diff_fn, x0)
-    return compute_kolmogorov_distance(original, simulated)
-end
-
-function simulate(drift_diff_fn::Function, y0::Vector{Float64}, dt=0.1, t_end=10.0)::Matrix{Float64}
-    N = length(y0)
-    T = Int(t_end / dt)
-    trajectories = Array{Float64}(undef, T, N)
-    trajectories[1, :] .= y0
-    y = copy(y0)
-    sqrtdt = sqrt(dt)
-    for t in 2:T
-        drift, diff = drift_diff_fn(y)
-        y .= y .+ drift .* dt .+ diff .* randn(N) .* sqrtdt
-        y .= clamp.(y, -1e3, 1e3)
-        trajectories[t, :] = y
-    end
-    return trajectories
-end
-
-struct SDE{T}
-    drift::T
-    diff::T
-end
-
-function compute((; drift, diff), (y,))
-    _f = drift(y)
-    _g = diff(y)
-    results = [SDE(f, g) for (f, g) in zip(_f.x, _g.x)]
-    return ValidVector(results, _f.valid && _g.valid)
-end
-
-const structure = TemplateStructure{(:drift, :diff)}(compute)
-
-function flatten_matrix(M::Matrix{Float64})::Matrix{Float64}
-    return reshape(vec(M)', 1, :)
-end
-
-function unflatten_matrix(flat_M::AbstractMatrix{Float64}, N::Int)::Matrix{Float64}
-    T = size(flat_M, 2) ÷ N
-    return reshape(flat_M, T, N)
-end
-
 function compute_wasserstein1d_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
     T = size(X, 1)
     tot = 0.0
@@ -138,7 +86,6 @@ function compute_kolmogorov_distance(X::Matrix{Float64}, Y::Matrix{Float64})::Fl
     return tot / T
 end
 
-
 function compute_histogram_distance(X::Matrix{Float64}, Y::Matrix{Float64}; nbins::Int=10)::Float64
     T = size(X, 1)
     N = size(X, 2)
@@ -180,6 +127,60 @@ function compute_histogram_distance(X::Matrix{Float64}, Y::Matrix{Float64}; nbin
     end
 
     return tot / T
+end
+
+function custom_loss(tree, dataset, options)
+    T = 100
+    N = size(dataset.X, 2) ÷ T
+    original = unflatten_matrix(dataset.X, N)
+    x0 = original[1, :]
+    drift_diff_fn = x -> begin
+        pred, flag = eval_tree_array(tree, reshape(x, 1, :), options.operators)
+        drifts = [p.drift for p in pred]
+        diffs  = [p.diff  for p in pred]
+        return (drifts, diffs)
+    end
+    simulated = simulate(drift_diff_fn, x0)
+    return compute_kolmogorov_distance(original, simulated)
+end
+
+function simulate(drift_diff_fn::Function, y0::Vector{Float64}, dt=0.1, t_end=10.0)::Matrix{Float64}
+    N = length(y0)
+    T = Int(t_end / dt)
+    trajectories = Array{Float64}(undef, T, N)
+    trajectories[1, :] .= y0
+    y = copy(y0)
+    sqrtdt = sqrt(dt)
+    for t in 2:T
+        drift, diff = drift_diff_fn(y)
+        y .= y .+ drift .* dt .+ diff .* randn(N) .* sqrtdt
+        y .= clamp.(y, -1e3, 1e3)
+        trajectories[t, :] .= y
+    end
+    return trajectories
+end
+
+struct SDE{T}
+    drift::T
+    diff::T
+end
+
+function compute((; drift, diff), (y,))
+    _f = drift(y)
+    _g = diff(y)
+    results = [SDE(f, g) for (f, g) in zip(_f.x, _g.x)]
+    return ValidVector(results, _f.valid && _g.valid)
+end
+
+const structure = TemplateStructure{(:drift, :diff)}(compute)
+
+function flatten_matrix(M::Matrix{Float64})::Matrix{Float64}
+    return reshape(vec(M)', 1, :)
+end
+
+function unflatten_matrix(flat_M::AbstractMatrix{Float64}, N::Int)::Matrix{Float64}
+    T = size(flat_M, 2) ÷ N
+    return reshape(flat_M, T, N)
 end
 
 function wrap_text(s::String, max_length::Int)

@@ -8,7 +8,7 @@ n = 1000
 rng = Random.MersenneTwister(0);
 
 X = (rand(rng, n) .- 0.5) .* 2.0 
-Y = [(2.0* x -20.0, exp(-x / 10.0) + 10.0) for x in X]
+Y = [(exp(sin(x-20.0)), exp(-x / 10.0) + 10.0) for x in X]
 
 struct SDE{T}
     drift::T
@@ -34,6 +34,7 @@ options = Options(
     maxsize=20,
     expression_spec=TemplateExpressionSpec(; structure),
     elementwise_loss=(F1, F2) -> (F1.drift - F2.drift)^2 + (F1.diff - F2.diff)^2,
+    nested_constraints = [sin => [sin => 0, exp => 0], exp => [sin => 0, exp => 0]],
 )
 
 hall_of_fame = equation_search(
@@ -44,7 +45,7 @@ hall_of_fame = equation_search(
 )
 
 dominating = calculate_pareto_frontier(hall_of_fame)
-
+#=
 println("Complexity\tLoss\tEquation")
 for member in dominating
     complexity = compute_complexity(member, options)
@@ -52,3 +53,4 @@ for member in dominating
     string = string_tree(member.tree, options)
     println("$(complexity)\t$(loss)\t$(string)")
 end
+=#
