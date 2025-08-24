@@ -74,6 +74,14 @@ export Population,
     SDE,
     compute,
     structure,
+    #SDEIdentificationTime
+    flatten_matrix_t,
+    unflatten_matrix_t, 
+    simulate_t,
+    make_drift_diff_fn_t,
+    custom_loss_t,
+    compute_self_distance_t,
+    compute_wasserstein1d_distance_t
 
     #Operators
     plus,
@@ -247,6 +255,7 @@ using DispatchDoctor: @stable
     include("TemplateExpressionMacro.jl")
     include("ParametricExpression.jl")
     include("SDEIdentification.jl")
+    include("SDEIdentificationTime.jl")
 end
 
 using .CoreModule:
@@ -363,6 +372,7 @@ using .ExpressionBuilderModule: embed_metadata, strip_metadata
 using .ParametricExpressionModule: ParametricExpressionSpec
 using .TemplateExpressionMacroModule: @template_spec
 using .SDEIdentification: custom_loss, plot_comparison, plot_trajectories, simulate, flatten_matrix, unflatten_matrix, compute_wasserstein1d_distance, compute_kolmogorov_distance, compute_histogram_distance, wrap_text, SDE, compute, structure
+using .SDEIdentificationTime: flatten_matrix_t, unflatten_matrix_t, simulate_t, make_drift_diff_fn_t, custom_loss_t, compute_self_distance_t, compute_wasserstein1d_distance_t
 
 @stable default_mode = "disable" begin
     include("deprecates.jl")

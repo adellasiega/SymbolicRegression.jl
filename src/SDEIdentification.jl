@@ -161,7 +161,7 @@ function simulate(drift_diff_fn::Function, y0::Vector{Float64}, dt=0.1, t_end=10
 end
 
 function compute_self_distance(drift_diff_fn::Function, y0::Vector{Float64})
-    n_iterations = 10
+    n_iterations = 100
     self_distance = 0.0
     for n in 1:n_iterations
         X1 = simulate(drift_diff_fn, y0)
