@@ -4,8 +4,6 @@ Pkg.add("StatsBase")
 Pkg.add("Distances")
 
 using SymbolicRegression
-include("SDEIdentificationTime.jl")
-
 using Plots
 
 using .SDEIdentificationTime

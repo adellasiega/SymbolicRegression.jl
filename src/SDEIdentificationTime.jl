@@ -3,7 +3,7 @@ module SDEIdentificationTime
 export flatten_matrix_t, unflatten_matrix_t,
        simulate_t, make_drift_diff_fn_t,
        custom_loss_t, compute_self_distance_t,
-       compute_wasserstein1d_distance_t
+       compute_wasserstein1d_distance_t, structure_t
 
 using StatsBase
 using SymbolicRegression.TemplateExpressionModule:
@@ -166,19 +166,19 @@ end
 
 # SDE struct
 
-struct SDE{T}
+struct SDE_t{T}
     drift::T
     diff::T
 end
 
-function compute((; drift, diff), (y, t, ))
+function compute_t((; drift, diff), (y, t, ))
     _f = drift(y, t)
     _g = diff(y, t)
-    results = [SDE(f, g) for (f, g) in zip(_f.x, _g.x)]
+    results = [SDE_t(f, g) for (f, g) in zip(_f.x, _g.x)]
     
     return ValidVector(results, _f.valid && _g.valid)
 end
 
-const structure = TemplateStructure{(:drift, :diff)}(compute)
+const structure_t = TemplateStructure{(:drift, :diff)}(compute_t)
 
 end # module
