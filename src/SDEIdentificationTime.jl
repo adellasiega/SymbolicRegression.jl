@@ -3,7 +3,9 @@ module SDEIdentificationTime
 export flatten_matrix_t, unflatten_matrix_t,
        simulate_t, make_drift_diff_fn_t,
        custom_loss_t, compute_self_distance_t,
-       compute_wasserstein1d_distance_t, structure_t
+       compute_wasserstein1d_distance_t,
+       compute_wasserstein1d_distance_t_fast,
+       structure_t
 
 using StatsBase
 using SymbolicRegression.TemplateExpressionModule:
@@ -147,6 +149,27 @@ function compute_wasserstein1d_distance_t(X::Matrix{Float64}, Y::Matrix{Float64}
     end
     return tot / T
 end
+
+function compute_wasserstein1d_distance_t_fast(X::Matrix{Float64}, Y::Matrix{Float64})::Float64
+
+    T = size(X, 1)
+    tot = 0.0
+    for t in 1:T
+        x = X[t, :]
+        y = Y[t, :]
+
+        if any(isnan.(x)) || any(isnan.(y)) || any(isinf.(x)) || any(isinf.(y))
+            return 1e10
+        end
+        
+        sort!(x)
+        sort!(y)
+
+        tot += mean(abs.(x .- y))
+    end
+    return tot / T
+end
+
 
 
 """
