@@ -64,7 +64,7 @@ end
 
 
 """
-    simulate_t(drift_diff_fn, y0; dt=0.1, t_end=10.0)
+    simulate_t(drift_diff_fn, y0; dt=0.1, t_end=5.0)
 
 Simulate non-autonomous SDE:
   dX_t = f(X_t, t) dt + g(X_t, t) dW_t
@@ -73,7 +73,7 @@ Simulate non-autonomous SDE:
 - `y0`: initial state (Vector{Float64})
 - Returns states (T, N) and times (T,)
 """
-function simulate_t(drift_diff_fn::Function, y0::Vector{Float64}; dt=0.1, t_end=10.0)::Tuple{Matrix{Float64}, Vector{Float64}}
+function simulate_t(drift_diff_fn::Function, y0::Vector{Float64}; dt=0.1, t_end=5.0)::Tuple{Matrix{Float64}, Vector{Float64}}
     N = length(y0)
     T = Int(round(t_end/dt))
     states = Array{Float64}(undef, T, N)
@@ -178,7 +178,7 @@ end
 Compute loss by comparing dataset trajectories with simulated ones.
 """
 function custom_loss_t(tree, dataset, options)
-    N = 50
+    N = 25
     original, times = unflatten_matrix_t(dataset.X, N)
     x0 = original[1, :]
     drift_diff_fn = make_drift_diff_fn_t(tree, options)
