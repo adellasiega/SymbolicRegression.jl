@@ -57,7 +57,7 @@ function unflatten_matrix_t(flat_M::AbstractMatrix{Float64}, N::Int)
     flat_times  = flat_M[2, :]
     T = length(flat_states) ÷ N
 
-    states = reshape(flat_states, T, N)   # (T, N)
+    states = Matrix(reshape(flat_states, T, N))   # (T, N)
     times  = flat_times[1:T]               # timeline from first trajectory
     return states, times
 end
